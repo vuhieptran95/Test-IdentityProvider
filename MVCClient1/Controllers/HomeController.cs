@@ -12,15 +12,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Owin.Security.Cookies;
 using MVCClient1.Models;
+using Newtonsoft.Json;
 
 namespace MVCClient1.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IDataProtector _provider;
+        private readonly IDataProtectionProvider _provider;
 
-        public HomeController(ILogger<HomeController> logger, IDataProtector provider)
+        public HomeController(ILogger<HomeController> logger, IDataProtectionProvider provider)
         {
             _logger = logger;
             _provider = provider;
@@ -35,17 +36,18 @@ namespace MVCClient1.Controllers
 
         public IActionResult DecryptCookie()
         {
-            string cookieValue = HttpContext.Request.Cookies["Cookies"];
+            string cookieValue = HttpContext.Request.Cookies[".AspNetCore.Cookies"];
 
             //Get a data protector to use with either approach
-            var dataProtector = _provider.CreateProtector(typeof(CookieAuthenticationMiddleware).FullName, "MyCookie");
+            var dataProtector = _provider.CreateProtector("Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware", "Cookies", "v2");
 
 
             //Get the decrypted cookie as plain text
-            UTF8Encoding specialUtf8Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+            UTF8Encoding specialUtf8Encoding = new UTF8Encoding();
             byte[] protectedBytes = Base64UrlTextEncoder.Decode(cookieValue);
             byte[] plainBytes = dataProtector.Unprotect(protectedBytes);
-            string plainText = specialUtf8Encoding.GetString(plainBytes);
+            string plainText = Encoding.ASCII.GetString(plainBytes);
+            var myToken = JsonConvert.DeserializeObject(plainText);
 
 
             //Get the decrypted cookie as a Authentication Ticket

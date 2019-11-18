@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +29,9 @@ namespace MVCClient1
             //services.AddControllersWithViews();
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+            services.AddDataProtection().PersistKeysToFileSystem(
+        new DirectoryInfo(@"C:\temp-keys\"));
+
 
             services
                 .AddAuthentication(options =>
@@ -69,6 +74,7 @@ namespace MVCClient1
             app.UseRouting();
 
             app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
