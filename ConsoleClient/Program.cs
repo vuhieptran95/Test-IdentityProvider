@@ -1,6 +1,9 @@
-﻿using IdentityModel.Client;
+﻿using Common;
+using IdentityModel.Client;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace ConsoleClient
@@ -9,32 +12,15 @@ namespace ConsoleClient
     {
         static async Task Main(string[] args)
         {
-            var client = new HttpClient();
-
-            var disco = await client.GetDiscoveryDocumentAsync("http://localhost:5000");
-            if (disco.IsError)
+            var rsaProvider = new RSACryptoServiceProvider();
+            rsaProvider.ImportParameters(new RSAParameters
             {
-                Console.WriteLine(disco.Error);
-                return;
-            }
-
-            // request token
-            var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = disco.TokenEndpoint,
-                ClientId = "client",
-                ClientSecret = "secret",
-
-                Scope = "api1"
+                Exponent = Base64UrlEncoder.DecodeBytes("AQAB"),
+                Modulus = Base64UrlEncoder.DecodeBytes("14WuP4Q4BQ6rkwHBIrO8PjArlbSPlPwLRVw4tfzA80I_VOPdqeRmQ_xV2HznKGQCG37sKCq3G-UhIaitYUyW-I_xbqIPKPvPbp9iWd0mg96j0UizdkMj2sc_z5dxTPK9tkoeOrwAm6JSyGG8ksEtpivM_CWCdMslBAsjXmtrQpJ2CE5SunrURGl_uKrSZzV6g_nltrdH3Mi4ebQrLYkfHLbwe0OiTXellyeLrH0C3wYkEnftz8yQ8g4n9VYGaNaclWk2CfjcO5hApQfSJsv7xrmdH2C0Qn5yE85LUqsqlR9cNo7T5A_1d-V1iBxiBXgYr4jB_VwZdLUXr1pScJ_w9Q")
             });
 
-            if (tokenResponse.IsError)
-            {
-                Console.WriteLine(tokenResponse.Error);
-                return;
-            }
+            var publicKey = RSAKeys.ExportPublicKey(rsaProvider);
 
-            Console.WriteLine(tokenResponse.Json);
             Console.WriteLine("\n\n");
         }
     }

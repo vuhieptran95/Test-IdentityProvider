@@ -49,6 +49,8 @@ namespace MVCClient1
                         options.ClientSecret = "secret";
                         options.ResponseType = "code";
 
+                        options.UseTokenLifetime = true;
+
                         options.SaveTokens = true;
                     });
 
