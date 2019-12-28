@@ -6,6 +6,7 @@
   
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="3.0.1" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
 
     <PackageReference Include="Serilog" Version="2.9.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.1.0" />
@@ -19,7 +20,13 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Update="private.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="private_unencrypted.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="public.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

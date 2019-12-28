@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +14,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MVCClient1
 {
@@ -29,10 +33,6 @@ namespace MVCClient1
             //services.AddControllersWithViews();
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-            services.AddDataProtection().PersistKeysToFileSystem(
-        new DirectoryInfo(@"C:\temp-keys\"));
-
-
             services
                 .AddAuthentication(options =>
                     {
@@ -44,7 +44,6 @@ namespace MVCClient1
                     {
                         options.Authority = "http://localhost:5000";
                         options.RequireHttpsMetadata = false;
-                        //options.CallbackPath = "/";
                         options.ClientId = "mvc";
                         options.ClientSecret = "secret";
                         options.ResponseType = "code";
@@ -52,7 +51,25 @@ namespace MVCClient1
                         options.UseTokenLifetime = true;
 
                         options.SaveTokens = true;
+                        options.UseTokenLifetime = true;
+                        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                        {
+                            RequireExpirationTime = true,
+                            ValidateLifetime = true,
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new RsaSecurityKey(RSAKeys.ImportPublicKey(File.ReadAllText("public.pem"))),
+
+                        };
+
+                        options.Scope.Add("email");
+                        options.Scope.Add("location");
+                        //options.Scope.Add("api2");
                     });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("location", policy => policy.RequireClaim("location"));
+            });
 
             services.AddMvc();
         }

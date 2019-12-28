@@ -28,6 +28,7 @@ namespace IdentityServer
             new TestUser{SubjectId = "BobUniqueId", Username = "bob", Password = "bob", 
                 Claims = 
                 {
+                    new Claim("TestClaim", "Just the test clame"),
                     new Claim(JwtClaimTypes.Name, "Bob Smith"),
                     new Claim(JwtClaimTypes.GivenName, "Bob"),
                     new Claim(JwtClaimTypes.FamilyName, "Smith"),

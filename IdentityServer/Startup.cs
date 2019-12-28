@@ -2,10 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace IdentityServer
 {
@@ -29,7 +36,18 @@ namespace IdentityServer
                 .AddTestUsers(TestUsers.Users);
 
             // not recommended for production - you need to store your key material somewhere secure
-            builder.AddDeveloperSigningCredential();
+            //builder.AddDeveloperSigningCredential();
+
+
+            //File.ReadAllText("private_unencrypted.pem");
+
+
+
+            var provider = RSAKeys.ImportPrivateKey(File.ReadAllText("private_unencrypted.pem"));
+            builder.AddSigningCredential(new RsaSecurityKey(provider), IdentityServer4.IdentityServerConstants.RsaSigningAlgorithm.RS256);
+
+
+
         }
 
         public void Configure(IApplicationBuilder app)
